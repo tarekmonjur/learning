@@ -8,20 +8,21 @@ import {
   Pin,
   useMap,
 } from "@vis.gl/react-google-maps";
-type Poi = { key: string; location: google.maps.LatLngLiteral };
 
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import {Circle} from '@/components/circle'
+import { Circle } from "@/components/circle";
 
-const PoiMarkers = (props: { pois: Poi[] }) => {
+import { getLocations, LocationType } from "@/lib/firebase";
+
+const PoiMarkers = (props: { pois: LocationType[] }) => {
   const map = useMap();
   const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
   const clusterer = useRef<MarkerClusterer | null>(null);
 
-  const [circleCenter, setCircleCenter] = useState(null)
+  const [circleCenter, setCircleCenter] = useState(null);
 
   // Initialize MarkerClusterer, if the map has changed
   useEffect(() => {
@@ -37,7 +38,7 @@ const PoiMarkers = (props: { pois: Poi[] }) => {
     clusterer.current?.addMarkers(Object.values(markers));
   }, [markers]);
 
-  const setMarkerRef = (marker: Marker | null, key: string) => {
+  const setMarkerRef = (marker: Marker | null, key: string | number) => {
     if (marker && markers[key]) return;
     if (!marker && !markers[key]) return;
 
@@ -63,15 +64,15 @@ const PoiMarkers = (props: { pois: Poi[] }) => {
   return (
     <>
       <Circle
-        radius={800}
+        radius={500}
         center={circleCenter}
-        strokeColor={'#0c4cb3'}
+        strokeColor={"#0c4cb3"}
         strokeOpacity={1}
         strokeWeight={3}
-        fillColor={'#3b82f6'}
+        fillColor={"#3b82f6"}
         fillOpacity={0.3}
       />
-      {props.pois.map((poi: Poi) => (
+      {props.pois.map((poi: LocationType) => (
         <AdvancedMarker
           key={poi.key}
           position={poi.location}
@@ -79,9 +80,60 @@ const PoiMarkers = (props: { pois: Poi[] }) => {
           clickable={true}
           onClick={handleClick}
         >
-          <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"} />
+          <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"}>
+            {poi.key}
+          </Pin>
         </AdvancedMarker>
       ))}
+    </>
+  );
+};
+
+const GoogleMap = () => {
+  const map = useMap();
+
+  const [center, setCenter] = useState(null);
+  const [locations, setLocations] = useState<LocationType[]>([]);
+  useEffect(() => {
+    const location = async () => {
+      const locationsData = await getLocations();
+      setLocations(locationsData ?? []);
+      if (locationsData?.length) {
+        setCenter(locationsData[locationsData?.length-1].location);
+      }
+    };
+    location();
+    const intervalId = setInterval(() => {
+      location();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    if (map && center) {
+      map?.setCenter(center);
+    }
+  }, [center]);
+
+
+
+  return (
+    <>
+      {center ? <Map
+      reuseMaps={true}
+      style={{ width: "100vw", height: "100vh" }}
+      defaultCenter={center}
+      defaultZoom={8}
+      gestureHandling={"greedy"}
+      disableDefaultUI={true}
+      mapId={"28659a7b75645af5"}
+      onCameraChanged={(ev: MapCameraChangedEvent) =>
+        console.log("camera changed:", ev.detail.center, "zoom:", ev.detail.zoom)
+      }
+    >
+      <PoiMarkers pois={locations} />
+    </Map> : <h5>Loading....</h5>}
     </>
   );
 };
@@ -104,26 +156,18 @@ export default function Page() {
   //   { key: "darlingHarbour", location: { lat: -33.87488, lng: 151.1987113 } },
   //   { key: "barangaroo", location: { lat: -33.8605523, lng: 151.1972205 } },
   // ];
-
-  const locations: Poi[] = [];
+  // const locations: Poi[] = [];
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <h1>test</h1>
-      <APIProvider apiKey={API_KEY} onLoad={() => console.log("Maps API has loaded.")}>
-        <Map
-          style={{ width: "100vw", height: "100vh" }}
-          defaultCenter={{ lat: -33.8567844, lng: 151.213108 }}
-          defaultZoom={15}
-          gestureHandling={"greedy"}
-          disableDefaultUI={true}
-          mapId={"28659a7b75645af5"}
-          onCameraChanged={(ev: MapCameraChangedEvent) =>
-            console.log("camera changed:", ev.detail.center, "zoom:", ev.detail.zoom)
-          }
-        >
-          <PoiMarkers pois={locations} />
-        </Map>
+      <h1>Find Location</h1>
+      <APIProvider
+        apiKey={API_KEY}
+        onLoad={() => {
+          console.log("Maps API has loaded.");
+        }}
+      >
+        <GoogleMap />
       </APIProvider>
     </div>
   );
