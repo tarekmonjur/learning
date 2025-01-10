@@ -11,6 +11,7 @@ import {
 
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Marker } from "@googlemaps/markerclusterer";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Circle } from "@/components/circle";
@@ -22,7 +23,7 @@ const PoiMarkers = (props: { pois: LocationType[] }) => {
   const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
   const clusterer = useRef<MarkerClusterer | null>(null);
 
-  const [circleCenter, setCircleCenter] = useState(null);
+  const [circleCenter, setCircleCenter] = useState<google.maps.LatLng>();
 
   // Initialize MarkerClusterer, if the map has changed
   useEffect(() => {
@@ -59,7 +60,7 @@ const PoiMarkers = (props: { pois: LocationType[] }) => {
     setCircleCenter(ev.latLng);
     console.log("marker clicked:", ev.latLng.toString());
     map.panTo(ev.latLng);
-  });
+  }, []);
 
   return (
     <>
@@ -92,14 +93,14 @@ const PoiMarkers = (props: { pois: LocationType[] }) => {
 const GoogleMap = () => {
   const map = useMap();
 
-  const [center, setCenter] = useState(null);
+  const [center, setCenter] = useState<google.maps.LatLngLiteral>();
   const [locations, setLocations] = useState<LocationType[]>([]);
   useEffect(() => {
     const location = async () => {
       const locationsData = await getLocations();
       setLocations(locationsData ?? []);
       if (locationsData?.length) {
-        setCenter(locationsData[locationsData?.length-1].location);
+        setCenter(locationsData[locationsData?.length - 1].location as unknown as google.maps.LatLngLiteral);
       }
     };
     location();

@@ -44,7 +44,7 @@ export default function Page() {
     setLocalUserData({ shared: false });
     setShared(false);
     if (shareRef?.current) {
-      clearInterval(shareRef.current);
+      clearInterval(shareRef.current as unknown as NodeJS.Timeout);
     }
   }
 

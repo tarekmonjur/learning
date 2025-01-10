@@ -18,6 +18,9 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 export type TUser = { userName: string | null, mobileNumber: string | number | null };
+interface IUser {
+  [key: string]: unknown
+}
 
 export type Poi = { key: number; location: google.maps.LatLngLiteral };
 export type LocationType = Record<string, unknown> & Poi;
@@ -29,7 +32,7 @@ export async function getLocations () {
 
     const profileCollection = collection(db, "profile");
     const querySnapshot2 = await getDocs(profileCollection);
-    let users: unknown[] = [];
+    let users: IUser[] = [];
     if (!querySnapshot2.empty) {
       users = querySnapshot2.docs.map((doc) => doc.data());
     }
@@ -37,7 +40,7 @@ export async function getLocations () {
     if (!querySnapshot.empty) {
       return querySnapshot.docs.map((doc, index) => {
         const data = doc.data();
-        const user = users.find(u => u?.id === data?.user_id);
+        const user = users.find((u: IUser) => u?.id === data?.user_id);
         return {
           ...(user || {}),
           ...data,
