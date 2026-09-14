@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./App.css";
 import { AppContext } from "./components/Context";
 import MainHeader from "./components/MainHeader";
 import PostList from "./components/PostList";
