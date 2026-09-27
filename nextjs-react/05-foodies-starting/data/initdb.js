@@ -1,6 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import { dummyMeals } from './dummy-meals.js';
-const db = new DatabaseSync('meals.db');
+const db = new DatabaseSync('./data/meals.db');
 
 
 db.prepare(`
