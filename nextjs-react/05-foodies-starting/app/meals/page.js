@@ -1,11 +1,15 @@
 import MealGrid from '@/components/meals/meal-grid';
 import { getMeals } from '@/data/meals';
+import { cacheLife } from 'next/cache';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import MealsLoading from './loading-meals';
 import classes from './page.module.css';
 
 async function Meals() {
+  'use cache'
+  cacheLife('minutes')
+
   const meals = await getMeals()
 
   return <MealGrid meals={meals} />
