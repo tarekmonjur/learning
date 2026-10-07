@@ -1,0 +1,41 @@
+{
+  "name": "graphql-essential",
+  "version": "1.0.0",
+  "description": "graphQL Essential Learning Project",
+  "keywords": [
+    "graphql",
+    "tarek",
+    "monjur"
+  ],
+  "homepage": "https://github.com/tarekmonjur/learning#readme",
+  "bugs": {
+    "url": "https://github.com/tarekmonjur/learning/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tarekmonjur/learning.git"
+  },
+  "license": "ISC",
+  "author": "tarek ahammed monjur",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test",
+    "dev": "nodemon --exec babel-node src/index.js",
+    "build": "babel src -d dist",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "graphql": "^17.0.2",
+    "graphql-http": "^1.23.1",
+    "nodemon": "^3.1.14",
+    "ruru": "^2.0.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^8.0.6",
+    "@babel/core": "^8.0.6",
+    "@babel/node": "^8.0.6",
+    "@babel/preset-env": "^8.0.6"
+  }
+}
